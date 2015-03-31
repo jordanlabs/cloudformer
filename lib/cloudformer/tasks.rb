@@ -4,9 +4,12 @@ require 'rake/tasklib'
 
 module Cloudformer
  class Tasks < Rake::TaskLib
-   def initialize(stack_name)
+   def initialize(stack_name, aws_env, yaml_file, tpl_json )
      @stack_name = stack_name
      @stack =Stack.new(stack_name)
+     @aws_env = aws_env
+     @yaml_file = yaml_file
+     @tpl_json = tpl_json
      if block_given?
        yield self
        define_tasks
