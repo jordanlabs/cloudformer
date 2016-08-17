@@ -14,12 +14,38 @@ class Stack
   ].freeze
   END_STATES = SUCESS_STATES + FAILURE_STATES
 
-  # WAITING_STATES = ["CREATE_IN_PROGRESS","DELETE_IN_PROGRESS","ROLLBACK_IN_PROGRESS","UPDATE_COMPLETE_CLEANUP_IN_PROGRESS","UPDATE_IN_PROGRESS","UPDATE_ROLLBACK_COMPLETE_CLEANUP_IN_PROGRESS","UPDATE_ROLLBACK_IN_PROGRESS"]
-  def initialize(stack_name)
-    @name = stack_name
-    @cf = AWS::CloudFormation.new
-    @stack = @cf.stacks[name]
-    @ec2 = AWS::EC2.new
+  WAITING_STATES = ["CREATE_IN_PROGRESS","DELETE_IN_PROGRESS","ROLLBACK_IN_PROGRESS","UPDATE_COMPLETE_CLEANUP_IN_PROGRESS","UPDATE_IN_PROGRESS","UPDATE_ROLLBACK_COMPLETE_CLEANUP_IN_PROGRESS","UPDATE_ROLLBACK_IN_PROGRESS"]
+
+  # Config options
+  # {:aws_access_key => nil, :aws_secert_access_key => nil, :region => nil}
+
+  def initialize(config)
+    @name = config[:stack_name]
+    @cf = Aws::CloudFormation::Client.new(region: config[:region], credentials: config[:credentials])
+    @resource = Aws::CloudFormation::Resource.new(client: @cf)
+    @stack = @resource.stack(@name) 
+    @ec2 = Aws::EC2::Client.new(region: config[:region], credentials: config[:credentials])
+  end
+
+  
+  def status_message
+    message = ""
+    begin
+      message =  stack.stack_status   
+    rescue Exception => e
+      message = "DOESNT_EXIST" if e.message == "Stack:#{name} does not exist" 
+    end 
+    return message
+  end
+  
+  def status_reason
+    message = ""
+    begin
+      message =  stack.stack_status_reason  
+    rescue Exception => e
+      message =  e.message 
+    end 
+    return message
   end
 
   def deployed
