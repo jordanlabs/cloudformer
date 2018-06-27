@@ -11,9 +11,9 @@ class Stack
   # WAITING_STATES = ["CREATE_IN_PROGRESS","DELETE_IN_PROGRESS","ROLLBACK_IN_PROGRESS","UPDATE_COMPLETE_CLEANUP_IN_PROGRESS","UPDATE_IN_PROGRESS","UPDATE_ROLLBACK_COMPLETE_CLEANUP_IN_PROGRESS","UPDATE_ROLLBACK_IN_PROGRESS"]
   def initialize(stack_name)
     @name = stack_name
-    @cf = AWS::CloudFormation.new
-    @stack = @cf.stacks[name]
-    @ec2 = AWS::EC2.new
+    @cf = Aws::CloudFormation::Client.new
+    @stack = @cf.describe_stacks({ stack_name: name })[0]
+    @ec2 = Aws::EC2::Client.new
   end
 
   def deployed
@@ -46,7 +46,7 @@ class Stack
       else
         pending_operations = create(template, parameters, disable_rollback, capabilities, notify, tags)
       end
-    rescue ::AWS::CloudFormation::Errors::ValidationError => e
+    rescue ::Aws::CloudFormation::Errors::ValidationError => e
       puts e.message
       return (if e.message == "No updates are to be performed." then :NoUpdates else :Failed end)
     end
@@ -148,7 +148,7 @@ class Stack
 
   def update(template, parameters, capabilities)
     stack.update({
-      :template => template,
+      :template_body => template,
       :parameters => parameters,
       :capabilities => capabilities
     })
@@ -157,7 +157,7 @@ class Stack
 
   def create(template, parameters, disable_rollback, capabilities, notify, tags)
     puts "Initializing stack creation..."
-    @cf.stacks.create(name, template, :parameters => parameters, :disable_rollback => disable_rollback, :capabilities => capabilities, :notify => notify, :tags => tags)
+    @cf.create_stack(name, template, :parameters => parameters, :disable_rollback => disable_rollback, :capabilities => capabilities, :notify => notify, :tags => tags)
     sleep 10
     return true
   end

@@ -2,12 +2,10 @@ require 'cloudformer/stack'
 
 describe Stack do
   before :each do
-    @cf = double(AWS::CloudFormation)
-    @cf_stack = double(AWS::CloudFormation::Stack)
-    @collection = double(AWS::CloudFormation::StackCollection)
-    AWS::CloudFormation.should_receive(:new).and_return(@cf)
-    @collection.should_receive(:[]).and_return(@cf_stack)
-    @cf.should_receive(:stacks).and_return(@collection)
+    @cf = double(Aws::CloudFormation::Client)
+    @cf_stack = double(Aws::CloudFormation::Stack)
+    Aws::CloudFormation::Client.should_receive(:new).and_return(@cf)
+    @cf.should_receive(:describe_stacks).and_return([@cf_stack])
   end
   describe "when deployed" do
     before :each do
@@ -46,7 +44,7 @@ describe Stack do
       @cf_stack.should_receive(:exists?).and_return(true)
       File.should_receive(:read).and_return("template")
       @cf.should_receive(:validate_template).and_return({"valid" => true})
-      @cf_stack.should_receive(:update).and_raise(AWS::CloudFormation::Errors::ValidationError)
+      @cf_stack.should_receive(:update).and_raise(Aws::CloudFormation::Errors::ValidationError)
     end
 
     it "apply should return Failed to signal the error" do
@@ -60,7 +58,7 @@ describe Stack do
       @cf_stack.should_receive(:exists?).and_return(true)
       File.should_receive(:read).and_return("template")
       @cf.should_receive(:validate_template).and_return({"valid" => true})
-      @cf_stack.should_receive(:update).and_raise(AWS::CloudFormation::Errors::ValidationError.new("No updates are to be performed."))
+      @cf_stack.should_receive(:update).and_raise(Aws::CloudFormation::Errors::ValidationError.new("No updates are to be performed."))
     end
 
     it "apply should return NoUpdate to signal the error" do
