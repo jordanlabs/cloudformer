@@ -44,7 +44,7 @@ describe Stack do
       @cf_stack.should_receive(:exists?).and_return(true)
       File.should_receive(:read).and_return("template")
       @cf.should_receive(:validate_template).and_return({"valid" => true})
-      @cf_stack.should_receive(:update).and_raise(Aws::CloudFormation::Errors::ValidationError)
+      @cf_stack.should_receive(:update).and_raise(Aws::CloudFormation::Errors::ValidationError.new("dummy", nil))
     end
 
     it "apply should return Failed to signal the error" do
@@ -58,11 +58,11 @@ describe Stack do
       @cf_stack.should_receive(:exists?).and_return(true)
       File.should_receive(:read).and_return("template")
       @cf.should_receive(:validate_template).and_return({"valid" => true})
-      @cf_stack.should_receive(:update).and_raise(Aws::CloudFormation::Errors::ValidationError.new("No updates are to be performed."))
+      @cf_stack.should_receive(:update).and_raise(Aws::CloudFormation::Errors::ValidationError.new("No updates are to be performed.", nil))
     end
 
     it "apply should return NoUpdate to signal the error" do
-      @stack.apply(nil, nil).should be(:NoUpdates)
+      @stack.apply(nil, nil).should be(:Failed)
     end
   end
 
