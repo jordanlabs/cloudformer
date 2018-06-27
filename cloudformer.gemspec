@@ -6,8 +6,8 @@ require 'cloudformer/version'
 Gem::Specification.new do |spec|
   spec.name          = "cloudformer"
   spec.version       = Cloudformer::VERSION
-  spec.authors       = ["Arvind Kunday"]
-  spec.email         = ["hi@kunday.com"]
+  spec.authors       = ["Sentia MPC", "Dennis Vink", "Arvind Kunday"]
+  spec.email         = ["dennis.vink@sentia.com", "hi@kunday.com"]
   spec.description   = %q{Cloudformation tasks for apply(create/update), delete, recreate on stack along with validations on templates}
   spec.summary       = %q{Cloudformer attempts to simplify AWS Cloudformation stack creation process in ruby projects by providing reusable rake tasks to perform common operations such as apply(create/update), delete, recreate on stack along with validations on templates.}
   spec.homepage      = "https://github.com/kunday/cloudformer"
@@ -21,6 +21,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "bundler", "~> 1.3"
   spec.add_development_dependency "rspec"
   spec.add_dependency "rake"
-  spec.add_dependency "aws-sdk", '~> 1.0'
+  spec.add_dependency "aws-sdk-v1", '~> 1.67.0'
+  spec.add_dependency "aws-sdk", '~> 2.10.9'
   spec.add_dependency "httparty"
 end
